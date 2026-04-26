@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from db.session import get_db
 from models.user import Utilisateur, ProfilBac
-from app.schemas.user import UtilisateurCreate, UtilisateurRead, TokenResponse, ProfilBacCreate, ProfilBacRead, UtilisateurUpdate
+from schemas.user import UtilisateurCreate, UtilisateurRead, TokenResponse, ProfilBacCreate, ProfilBacRead, UtilisateurUpdate
 from core.security import hash_password, verify_password, create_access_token, get_current_user
 
 router = APIRouter(prefix="/users", tags=["utilisateurs"])
