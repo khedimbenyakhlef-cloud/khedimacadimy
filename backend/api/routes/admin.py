@@ -4,6 +4,7 @@ from core.config import settings
 from models.recommandation import Wilaya, Universite, Offre
 from models.filiere import Filiere
 from datetime import datetime
+import uuid
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -30,40 +31,50 @@ WILAYAS = [
     (58,"El Meniaa","58","Sud"),
 ]
 
-FILIERES = [
-    {"id":1,"nom":"Médecine générale","domaine":"Santé","duree_annees":7,"moyenne_min":16.0,"series_compatibles":["sciences"],"interets_associes":["sante","sciences"],"debouches":"Médecin généraliste","taux_emploi":95},
-    {"id":2,"nom":"Pharmacie","domaine":"Santé","duree_annees":5,"moyenne_min":15.5,"series_compatibles":["sciences"],"interets_associes":["sante","sciences"],"debouches":"Pharmacien","taux_emploi":90},
-    {"id":3,"nom":"Génie informatique","domaine":"Informatique","duree_annees":5,"moyenne_min":14.0,"series_compatibles":["sciences","maths","technique"],"interets_associes":["tech","sciences"],"debouches":"Développeur, IA","taux_emploi":88},
-    {"id":4,"nom":"Génie électronique","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.5,"series_compatibles":["technique","maths","sciences"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur électronicien","taux_emploi":82},
-    {"id":5,"nom":"Architecture","domaine":"Architecture","duree_annees":5,"moyenne_min":13.5,"series_compatibles":["sciences","technique"],"interets_associes":["art","tech"],"debouches":"Architecte","taux_emploi":75},
-    {"id":6,"nom":"Droit","domaine":"Droit","duree_annees":4,"moyenne_min":12.0,"series_compatibles":["lettres","gestion"],"interets_associes":["droit","social"],"debouches":"Avocat, magistrat","taux_emploi":70},
-    {"id":7,"nom":"Sciences économiques","domaine":"Économie","duree_annees":5,"moyenne_min":12.0,"series_compatibles":["gestion","maths"],"interets_associes":["business","social"],"debouches":"Économiste","taux_emploi":72},
-    {"id":8,"nom":"Génie civil","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.0,"series_compatibles":["technique","maths"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur BTP","taux_emploi":82},
-    {"id":9,"nom":"Agronomie","domaine":"Agriculture","duree_annees":5,"moyenne_min":11.5,"series_compatibles":["sciences"],"interets_associes":["agri","sciences"],"debouches":"Ingénieur agronome","taux_emploi":65},
-    {"id":10,"nom":"Informatique de gestion","domaine":"Informatique","duree_annees":3,"moyenne_min":11.0,"series_compatibles":["gestion","maths","sciences"],"interets_associes":["tech","business"],"debouches":"Développeur web","taux_emploi":78},
+FILIERES_DATA = [
+    {"nom":"Médecine générale","domaine":"Santé","duree_annees":7,"moyenne_min":16.0,"series_compatibles":["sciences"],"interets_associes":["sante","sciences"],"debouches":"Médecin généraliste","taux_emploi":95},
+    {"nom":"Pharmacie","domaine":"Santé","duree_annees":5,"moyenne_min":15.5,"series_compatibles":["sciences"],"interets_associes":["sante","sciences"],"debouches":"Pharmacien","taux_emploi":90},
+    {"nom":"Génie informatique","domaine":"Informatique","duree_annees":5,"moyenne_min":14.0,"series_compatibles":["sciences","maths","technique"],"interets_associes":["tech","sciences"],"debouches":"Développeur, IA","taux_emploi":88},
+    {"nom":"Génie électronique","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.5,"series_compatibles":["technique","maths","sciences"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur électronicien","taux_emploi":82},
+    {"nom":"Architecture","domaine":"Architecture","duree_annees":5,"moyenne_min":13.5,"series_compatibles":["sciences","technique"],"interets_associes":["art","tech"],"debouches":"Architecte","taux_emploi":75},
+    {"nom":"Droit","domaine":"Droit","duree_annees":4,"moyenne_min":12.0,"series_compatibles":["lettres","gestion"],"interets_associes":["droit","social"],"debouches":"Avocat, magistrat","taux_emploi":70},
+    {"nom":"Sciences économiques","domaine":"Économie","duree_annees":5,"moyenne_min":12.0,"series_compatibles":["gestion","maths"],"interets_associes":["business","social"],"debouches":"Économiste","taux_emploi":72},
+    {"nom":"Génie civil","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.0,"series_compatibles":["technique","maths"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur BTP","taux_emploi":82},
+    {"nom":"Agronomie","domaine":"Agriculture","duree_annees":5,"moyenne_min":11.5,"series_compatibles":["sciences"],"interets_associes":["agri","sciences"],"debouches":"Ingénieur agronome","taux_emploi":65},
+    {"nom":"Informatique de gestion","domaine":"Informatique","duree_annees":3,"moyenne_min":11.0,"series_compatibles":["gestion","maths","sciences"],"interets_associes":["tech","business"],"debouches":"Développeur web","taux_emploi":78},
+    {"nom":"Biologie","domaine":"Sciences","duree_annees":3,"moyenne_min":10.0,"series_compatibles":["sciences"],"interets_associes":["sciences","agri"],"debouches":"Biologiste, laboratoire","taux_emploi":60},
+    {"nom":"Lettres arabes","domaine":"Lettres","duree_annees":3,"moyenne_min":10.0,"series_compatibles":["lettres"],"interets_associes":["social","droit"],"debouches":"Enseignant, journaliste","taux_emploi":55},
+    {"nom":"Histoire","domaine":"Sciences humaines","duree_annees":3,"moyenne_min":10.0,"series_compatibles":["lettres","gestion"],"interets_associes":["social","droit"],"debouches":"Enseignant, archiviste","taux_emploi":50},
+    {"nom":"Mathématiques","domaine":"Sciences","duree_annees":3,"moyenne_min":13.0,"series_compatibles":["maths","sciences"],"interets_associes":["sciences","tech"],"debouches":"Enseignant, actuaire","taux_emploi":70},
+    {"nom":"Physique","domaine":"Sciences","duree_annees":3,"moyenne_min":12.5,"series_compatibles":["maths","sciences","technique"],"interets_associes":["sciences","tech"],"debouches":"Enseignant, ingénieur","taux_emploi":65},
 ]
 
-UNIVERSITES = [
-    {"id":1,"nom":"USTHB Alger","wilaya_id":16,"type":"Université"},
-    {"id":2,"nom":"Université Alger 1","wilaya_id":16,"type":"Université"},
-    {"id":3,"nom":"Université Alger 3","wilaya_id":16,"type":"Université"},
-    {"id":4,"nom":"Université d'Oran 1","wilaya_id":31,"type":"Université"},
-    {"id":5,"nom":"Université d'Oran 2","wilaya_id":31,"type":"Université"},
-    {"id":6,"nom":"Université Constantine 1","wilaya_id":25,"type":"Université"},
-    {"id":7,"nom":"Université Constantine 3","wilaya_id":25,"type":"Université"},
-    {"id":8,"nom":"Université Annaba","wilaya_id":23,"type":"Université"},
-    {"id":9,"nom":"Université Batna 1","wilaya_id":5,"type":"Université"},
-    {"id":10,"nom":"Université Batna 2","wilaya_id":5,"type":"Université"},
-    {"id":11,"nom":"Université Sétif 1","wilaya_id":19,"type":"Université"},
-    {"id":12,"nom":"Université Tizi Ouzou","wilaya_id":15,"type":"Université"},
-    {"id":13,"nom":"Université Béjaïa","wilaya_id":6,"type":"Université"},
-    {"id":14,"nom":"Université Tlemcen","wilaya_id":13,"type":"Université"},
-    {"id":15,"nom":"Université Blida 1","wilaya_id":9,"type":"Université"},
-    {"id":16,"nom":"Université Blida 2","wilaya_id":9,"type":"Université"},
-    {"id":17,"nom":"Université Médéa","wilaya_id":26,"type":"Université"},
-    {"id":18,"nom":"Université Boumerdès","wilaya_id":35,"type":"Université"},
-    {"id":19,"nom":"Université Tipaza","wilaya_id":42,"type":"Université"},
-    {"id":20,"nom":"Université Mostaganem","wilaya_id":27,"type":"Université"},
+UNIVERSITES_DATA = [
+    {"nom":"USTHB Alger","wilaya_id":16,"type":"Université"},
+    {"nom":"Université Alger 1 Benyoucef Benkhedda","wilaya_id":16,"type":"Université"},
+    {"nom":"Université Alger 3","wilaya_id":16,"type":"Université"},
+    {"nom":"Université d'Oran 1 Ahmed Ben Bella","wilaya_id":31,"type":"Université"},
+    {"nom":"Université d'Oran 2 Mohamed Ben Ahmed","wilaya_id":31,"type":"Université"},
+    {"nom":"Université Frères Mentouri Constantine 1","wilaya_id":25,"type":"Université"},
+    {"nom":"Université Constantine 3","wilaya_id":25,"type":"Université"},
+    {"nom":"Université Badji Mokhtar Annaba","wilaya_id":23,"type":"Université"},
+    {"nom":"Université Batna 1 Hadj Lakhdar","wilaya_id":5,"type":"Université"},
+    {"nom":"Université Batna 2 Mostefa Ben Boulaïd","wilaya_id":5,"type":"Université"},
+    {"nom":"Université Sétif 1 Ferhat Abbas","wilaya_id":19,"type":"Université"},
+    {"nom":"Université Mouloud Mammeri Tizi Ouzou","wilaya_id":15,"type":"Université"},
+    {"nom":"Université Abderrahmane Mira Béjaïa","wilaya_id":6,"type":"Université"},
+    {"nom":"Université Abou Bekr Belkaïd Tlemcen","wilaya_id":13,"type":"Université"},
+    {"nom":"Université Saad Dahleb Blida 1","wilaya_id":9,"type":"Université"},
+    {"nom":"Université Ali Lounici Blida 2","wilaya_id":9,"type":"Université"},
+    {"nom":"Université Yahia Fares Médéa","wilaya_id":26,"type":"Université"},
+    {"nom":"Université Boumerdès","wilaya_id":35,"type":"Université"},
+    {"nom":"Université Tipaza","wilaya_id":42,"type":"Université"},
+    {"nom":"Université Abdelhamid Ibn Badis Mostaganem","wilaya_id":27,"type":"Université"},
+    {"nom":"Université Djillali Liabes Sidi Bel Abbès","wilaya_id":22,"type":"Université"},
+    {"nom":"Université Hassiba Benbouali Chlef","wilaya_id":2,"type":"Université"},
+    {"nom":"Université Mohamed Boudiaf M'Sila","wilaya_id":28,"type":"Université"},
+    {"nom":"Université Ibn Khaldoun Tiaret","wilaya_id":14,"type":"Université"},
+    {"nom":"Université Kasdi Merbah Ouargla","wilaya_id":30,"type":"Université"},
 ]
 
 @router.post("/seed")
@@ -74,22 +85,43 @@ async def seed_database():
     engine = create_async_engine(db_url)
     SessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
     annee = datetime.now().year
+
     async with SessionLocal() as db:
+        # Wilayas
         for w_id, nom, code, region in WILAYAS:
             db.add(Wilaya(id=w_id, nom=nom, code=code, region=region))
         await db.flush()
-        for f in FILIERES:
-            data = {k:v for k,v in f.items() if k != "id"}
-            db.add(Filiere(id=f["id"], **data))
+
+        # Filières avec UUID
+        filiere_ids = []
+        for f in FILIERES_DATA:
+            fid = uuid.uuid4()
+            filiere_ids.append((fid, f["moyenne_min"]))
+            db.add(Filiere(id=fid, **f))
         await db.flush()
-        for u in UNIVERSITES:
-            db.add(Universite(**u))
+
+        # Universités avec UUID
+        univ_ids = []
+        for u in UNIVERSITES_DATA:
+            uid = uuid.uuid4()
+            univ_ids.append(uid)
+            db.add(Universite(id=uid, **u))
         await db.flush()
-        offre_id = 1
-        for f in FILIERES:
-            for u in UNIVERSITES:
-                db.add(Offre(id=offre_id, filiere_id=f["id"], universite_id=u["id"], annee=annee, capacite=50, moyenne_derniere=f["moyenne_min"]))
-                offre_id += 1
+
+        # Offres : chaque filière dans chaque université
+        nb_offres = 0
+        for fid, moy_min in filiere_ids:
+            for uid in univ_ids:
+                db.add(Offre(
+                    id=uuid.uuid4(),
+                    filiere_id=fid,
+                    universite_id=uid,
+                    annee=annee,
+                    capacite=50,
+                    moyenne_derniere=moy_min
+                ))
+                nb_offres += 1
+
         await db.commit()
     await engine.dispose()
-    return {"status": "ok", "wilayas": len(WILAYAS), "filieres": len(FILIERES), "universites": len(UNIVERSITES), "offres": offre_id-1}
+    return {"status": "ok", "wilayas": len(WILAYAS), "filieres": len(FILIERES_DATA), "universites": len(UNIVERSITES_DATA), "offres": nb_offres}
