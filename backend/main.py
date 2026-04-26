@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from core.config import settings
-from api.routes import orientation, filieres, users
+from api.routes import orientation, filieres, users, admin
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -20,6 +20,7 @@ app.add_middleware(
 
 app.include_router(orientation.router, prefix="/api/v1")
 app.include_router(filieres.router, prefix="/api/v1")
+app.include_router(admin.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
 
 @app.get("/")
