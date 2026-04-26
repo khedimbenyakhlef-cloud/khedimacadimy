@@ -3,6 +3,7 @@ services:
     name: backend
     env: docker
     dockerfilePath: ./backend/Dockerfile
+    plan: free
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -16,6 +17,7 @@ services:
   - type: web
     name: frontend
     env: node
+    plan: free
     buildCommand: cd frontend && npm install && npm run build
     startCommand: cd frontend && npm start
     envVars:
@@ -24,3 +26,7 @@ services:
           type: web
           name: backend
           property: host
+
+databases:
+  - name: orientation-db
+    plan: free
