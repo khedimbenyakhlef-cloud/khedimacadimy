@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy import text
 from core.config import settings
 from models.recommandation import Wilaya, Universite, Offre
 from models.filiere import Filiere
@@ -32,21 +33,51 @@ WILAYAS = [
 ]
 
 FILIERES_DATA = [
-    {"nom":"Médecine générale","domaine":"Santé","duree_annees":7,"moyenne_min":16.0,"series_compatibles":["sciences"],"interets_associes":["sante","sciences"],"debouches":"Médecin généraliste","taux_emploi":95},
-    {"nom":"Pharmacie","domaine":"Santé","duree_annees":5,"moyenne_min":15.5,"series_compatibles":["sciences"],"interets_associes":["sante","sciences"],"debouches":"Pharmacien","taux_emploi":90},
-    {"nom":"Génie informatique","domaine":"Informatique","duree_annees":5,"moyenne_min":14.0,"series_compatibles":["sciences","maths","technique"],"interets_associes":["tech","sciences"],"debouches":"Développeur, IA","taux_emploi":88},
-    {"nom":"Génie électronique","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.5,"series_compatibles":["technique","maths","sciences"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur électronicien","taux_emploi":82},
-    {"nom":"Architecture","domaine":"Architecture","duree_annees":5,"moyenne_min":13.5,"series_compatibles":["sciences","technique"],"interets_associes":["art","tech"],"debouches":"Architecte","taux_emploi":75},
-    {"nom":"Droit","domaine":"Droit","duree_annees":4,"moyenne_min":12.0,"series_compatibles":["lettres","gestion"],"interets_associes":["droit","social"],"debouches":"Avocat, magistrat","taux_emploi":70},
-    {"nom":"Sciences économiques","domaine":"Économie","duree_annees":5,"moyenne_min":12.0,"series_compatibles":["gestion","maths"],"interets_associes":["business","social"],"debouches":"Économiste","taux_emploi":72},
-    {"nom":"Génie civil","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.0,"series_compatibles":["technique","maths"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur BTP","taux_emploi":82},
-    {"nom":"Agronomie","domaine":"Agriculture","duree_annees":5,"moyenne_min":11.5,"series_compatibles":["sciences"],"interets_associes":["agri","sciences"],"debouches":"Ingénieur agronome","taux_emploi":65},
-    {"nom":"Informatique de gestion","domaine":"Informatique","duree_annees":3,"moyenne_min":11.0,"series_compatibles":["gestion","maths","sciences"],"interets_associes":["tech","business"],"debouches":"Développeur web","taux_emploi":78},
-    {"nom":"Biologie","domaine":"Sciences","duree_annees":3,"moyenne_min":10.0,"series_compatibles":["sciences"],"interets_associes":["sciences","agri"],"debouches":"Biologiste, laboratoire","taux_emploi":60},
-    {"nom":"Lettres arabes","domaine":"Lettres","duree_annees":3,"moyenne_min":10.0,"series_compatibles":["lettres"],"interets_associes":["social","droit"],"debouches":"Enseignant, journaliste","taux_emploi":55},
-    {"nom":"Histoire","domaine":"Sciences humaines","duree_annees":3,"moyenne_min":10.0,"series_compatibles":["lettres","gestion"],"interets_associes":["social","droit"],"debouches":"Enseignant, archiviste","taux_emploi":50},
-    {"nom":"Mathématiques","domaine":"Sciences","duree_annees":3,"moyenne_min":13.0,"series_compatibles":["maths","sciences"],"interets_associes":["sciences","tech"],"debouches":"Enseignant, actuaire","taux_emploi":70},
-    {"nom":"Physique","domaine":"Sciences","duree_annees":3,"moyenne_min":12.5,"series_compatibles":["maths","sciences","technique"],"interets_associes":["sciences","tech"],"debouches":"Enseignant, ingénieur","taux_emploi":65},
+    # Santé
+    {"nom":"Médecine générale","domaine":"Santé","duree_annees":7,"moyenne_min":16.0,"series_compatibles":["sciences"],"interets_associes":["sante","sciences"],"debouches":"Médecin généraliste, spécialiste","taux_emploi":95},
+    {"nom":"Pharmacie","domaine":"Santé","duree_annees":5,"moyenne_min":15.5,"series_compatibles":["sciences"],"interets_associes":["sante","sciences"],"debouches":"Pharmacien, industrie pharmaceutique","taux_emploi":90},
+    {"nom":"Chirurgie dentaire","domaine":"Santé","duree_annees":5,"moyenne_min":15.0,"series_compatibles":["sciences"],"interets_associes":["sante","sciences"],"debouches":"Dentiste, chirurgien","taux_emploi":88},
+    {"nom":"Médecine vétérinaire","domaine":"Santé","duree_annees":5,"moyenne_min":14.5,"series_compatibles":["sciences"],"interets_associes":["sante","agri","sciences"],"debouches":"Vétérinaire, inspection alimentaire","taux_emploi":80},
+    {"nom":"Sciences infirmières","domaine":"Santé","duree_annees":3,"moyenne_min":11.0,"series_compatibles":["sciences"],"interets_associes":["sante","social"],"debouches":"Infirmier, aide soignant","taux_emploi":92},
+    # Informatique & Tech
+    {"nom":"Génie informatique","domaine":"Informatique","duree_annees":5,"moyenne_min":14.0,"series_compatibles":["sciences","maths","technique"],"interets_associes":["tech","sciences"],"debouches":"Développeur, data scientist, IA","taux_emploi":88},
+    {"nom":"Informatique de gestion","domaine":"Informatique","duree_annees":3,"moyenne_min":11.0,"series_compatibles":["gestion","maths","sciences"],"interets_associes":["tech","business"],"debouches":"Développeur web, analyste SI","taux_emploi":78},
+    {"nom":"Systèmes informatiques","domaine":"Informatique","duree_annees":3,"moyenne_min":12.0,"series_compatibles":["sciences","maths","technique"],"interets_associes":["tech","sciences"],"debouches":"Administrateur réseau, sécurité","taux_emploi":82},
+    {"nom":"Intelligence artificielle","domaine":"Informatique","duree_annees":5,"moyenne_min":15.0,"series_compatibles":["sciences","maths"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur IA, data scientist","taux_emploi":90},
+    # Ingénierie
+    {"nom":"Génie électronique","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.5,"series_compatibles":["technique","maths","sciences"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur électronicien, Sonatrach","taux_emploi":82},
+    {"nom":"Génie civil","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.0,"series_compatibles":["technique","maths"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur BTP, bureau d'études","taux_emploi":82},
+    {"nom":"Génie mécanique","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.0,"series_compatibles":["technique","maths","sciences"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur mécanique, industrie","taux_emploi":78},
+    {"nom":"Génie chimique","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.0,"series_compatibles":["sciences","technique"],"interets_asocies":["sciences","tech"],"debouches":"Ingénieur chimiste, pétrochimie","taux_emploi":75},
+    {"nom":"Génie des procédés","domaine":"Ingénierie","duree_annees":5,"moyenne_min":12.5,"series_compatibles":["sciences","technique"],"interets_associes":["sciences","tech"],"debouches":"Ingénieur process, Sonatrach","taux_emploi":80},
+    {"nom":"Génie électrique","domaine":"Ingénierie","duree_annees":5,"moyenne_min":13.0,"series_compatibles":["technique","maths"],"interets_associes":["tech","sciences"],"debouches":"Ingénieur électricien, Sonelgaz","taux_emploi":83},
+    {"nom":"Architecture","domaine":"Architecture","duree_annees":5,"moyenne_min":13.5,"series_compatibles":["sciences","technique"],"interets_associes":["art","tech"],"debouches":"Architecte, urbaniste","taux_emploi":75},
+    # Sciences
+    {"nom":"Mathématiques","domaine":"Sciences","duree_annees":3,"moyenne_min":13.0,"series_compatibles":["maths","sciences"],"interets_associes":["sciences","tech"],"debouches":"Enseignant, actuaire, statisticien","taux_emploi":70},
+    {"nom":"Physique","domaine":"Sciences","duree_annees":3,"moyenne_min":12.5,"series_compatibles":["maths","sciences","technique"],"interets_associes":["sciences","tech"],"debouches":"Enseignant, ingénieur, chercheur","taux_emploi":65},
+    {"nom":"Chimie","domaine":"Sciences","duree_annees":3,"moyenne_min":12.0,"series_compatibles":["sciences"],"interets_associes":["sciences","agri"],"debouches":"Chimiste, laboratoire, industrie","taux_emploi":65},
+    {"nom":"Biologie","domaine":"Sciences","duree_annees":3,"moyenne_min":11.0,"series_compatibles":["sciences"],"interets_associes":["sciences","sante","agri"],"debouches":"Biologiste, laboratoire","taux_emploi":60},
+    {"nom":"Sciences de la nature","domaine":"Sciences","duree_annees":3,"moyenne_min":10.5,"series_compatibles":["sciences"],"interets_associes":["sciences","agri"],"debouches":"Enseignant, chercheur","taux_emploi":55},
+    # Économie & Gestion
+    {"nom":"Sciences économiques","domaine":"Économie","duree_annees":5,"moyenne_min":12.0,"series_compatibles":["gestion","maths"],"interets_associes":["business","social"],"debouches":"Économiste, analyste financier","taux_emploi":72},
+    {"nom":"Sciences de gestion","domaine":"Gestion","duree_annees":3,"moyenne_min":10.5,"series_compatibles":["gestion","maths"],"interets_associes":["business","social"],"debouches":"Manager, RH, comptable","taux_emploi":68},
+    {"nom":"Commerce international","domaine":"Commerce","duree_annees":3,"moyenne_min":11.0,"series_compatibles":["gestion","langues"],"interets_associes":["business","social"],"debouches":"Trader, import-export, logistique","taux_emploi":70},
+    {"nom":"Finance et comptabilité","domaine":"Finance","duree_annees":3,"moyenne_min":11.0,"series_compatibles":["gestion","maths"],"interets_associes":["business"],"debouches":"Comptable, auditeur, banquier","taux_emploi":75},
+    {"nom":"Marketing","domaine":"Commerce","duree_annees":3,"moyenne_min":11.0,"series_compatibles":["gestion","langues"],"interets_associes":["business","art"],"debouches":"Marketeur, chef de produit","taux_emploi":65},
+    # Droit & Sciences sociales
+    {"nom":"Droit","domaine":"Droit","duree_annees":4,"moyenne_min":12.0,"series_compatibles":["lettres","gestion"],"interets_associes":["droit","social"],"debouches":"Avocat, magistrat, notaire","taux_emploi":70},
+    {"nom":"Sciences politiques","domaine":"Sciences sociales","duree_annees":4,"moyenne_min":11.5,"series_compatibles":["lettres","gestion"],"interets_associes":["social","droit"],"debouches":"Diplomate, analyste politique","taux_emploi":55},
+    {"nom":"Sociologie","domaine":"Sciences sociales","duree_annees":3,"moyenne_min":10.5,"series_compatibles":["lettres","gestion"],"interets_associes":["social"],"debouches":"Sociologue, travailleur social","taux_emploi":50},
+    {"nom":"Psychologie","domaine":"Sciences sociales","duree_annees":5,"moyenne_min":11.0,"series_compatibles":["lettres","sciences"],"interets_associes":["sante","social"],"debouches":"Psychologue, conseiller","taux_emploi":60},
+    # Lettres & Langues
+    {"nom":"Lettres arabes","domaine":"Lettres","duree_annees":3,"moyenne_min":10.0,"series_compatibles":["lettres"],"interets_associes":["social"],"debouches":"Enseignant, journaliste, traducteur","taux_emploi":55},
+    {"nom":"Lettres françaises","domaine":"Lettres","duree_annees":3,"moyenne_min":10.0,"series_compatibles":["lettres","langues"],"interets_associes":["social","art"],"debouches":"Enseignant, traducteur, journaliste","taux_emploi":52},
+    {"nom":"Langue anglaise","domaine":"Langues","duree_annees":3,"moyenne_min":10.5,"series_compatibles":["langues","lettres"],"interets_associes":["social","business"],"debouches":"Traducteur, enseignant, interprète","taux_emploi":60},
+    {"nom":"Traduction","domaine":"Langues","duree_annees":3,"moyenne_min":11.0,"series_compatibles":["langues","lettres"],"interets_associes":["social","business"],"debouches":"Traducteur, interprète, journaliste","taux_emploi":58},
+    # Agriculture
+    {"nom":"Agronomie","domaine":"Agriculture","duree_annees":5,"moyenne_min":11.5,"series_compatibles":["sciences"],"interets_associes":["agri","sciences"],"debouches":"Ingénieur agronome, INRA","taux_emploi":65},
+    {"nom":"Sciences vétérinaires","domaine":"Agriculture","duree_annees":5,"moyenne_min":13.0,"series_compatibles":["sciences"],"interets_associes":["agri","sante","sciences"],"debouches":"Vétérinaire, inspecteur","taux_emploi":78},
+    {"nom":"Hydraulique","domaine":"Ingénierie","duree_annees":5,"moyenne_min":12.5,"series_compatibles":["technique","maths"],"interets_associes":["tech","agri"],"debouches":"Ingénieur hydraulique, ADE","taux_emploi":80},
 ]
 
 UNIVERSITES_DATA = [
@@ -65,16 +96,21 @@ UNIVERSITES_DATA = [
     {"nom":"Université Abderrahmane Mira Béjaïa","wilaya_id":6,"type":"Université"},
     {"nom":"Université Abou Bekr Belkaïd Tlemcen","wilaya_id":13,"type":"Université"},
     {"nom":"Université Saad Dahleb Blida 1","wilaya_id":9,"type":"Université"},
-    {"nom":"Université Ali Lounici Blida 2","wilaya_id":9,"type":"Université"},
     {"nom":"Université Yahia Fares Médéa","wilaya_id":26,"type":"Université"},
     {"nom":"Université Boumerdès","wilaya_id":35,"type":"Université"},
-    {"nom":"Université Tipaza","wilaya_id":42,"type":"Université"},
     {"nom":"Université Abdelhamid Ibn Badis Mostaganem","wilaya_id":27,"type":"Université"},
     {"nom":"Université Djillali Liabes Sidi Bel Abbès","wilaya_id":22,"type":"Université"},
     {"nom":"Université Hassiba Benbouali Chlef","wilaya_id":2,"type":"Université"},
     {"nom":"Université Mohamed Boudiaf M'Sila","wilaya_id":28,"type":"Université"},
     {"nom":"Université Ibn Khaldoun Tiaret","wilaya_id":14,"type":"Université"},
     {"nom":"Université Kasdi Merbah Ouargla","wilaya_id":30,"type":"Université"},
+    {"nom":"Université Tahri Mohamed Béchar","wilaya_id":8,"type":"Université"},
+    {"nom":"Université Biskra Mohamed Khider","wilaya_id":7,"type":"Université"},
+    {"nom":"Université Guelma","wilaya_id":24,"type":"Université"},
+    {"nom":"Université Jijel Mohamed Seddik Benyahia","wilaya_id":18,"type":"Université"},
+    {"nom":"Université Skikda","wilaya_id":21,"type":"Université"},
+    {"nom":"Université Souk Ahras","wilaya_id":41,"type":"Université"},
+    {"nom":"Université Tipaza","wilaya_id":42,"type":"Université"},
 ]
 
 @router.post("/seed")
@@ -87,12 +123,23 @@ async def seed_database():
     annee = datetime.now().year
 
     async with SessionLocal() as db:
+        # Nettoyer dans l'ordre
+        await db.execute(text("DELETE FROM recommendations"))
+        await db.execute(text("DELETE FROM temoignages"))
+        await db.execute(text("DELETE FROM offres"))
+        await db.execute(text("DELETE FROM filieres"))
+        await db.execute(text("DELETE FROM universites"))
+        await db.execute(text("DELETE FROM wilayas"))
+        await db.execute(text("DELETE FROM profils_bac"))
+        await db.execute(text("DELETE FROM utilisateurs"))
+        await db.commit()
+
         # Wilayas
         for w_id, nom, code, region in WILAYAS:
             db.add(Wilaya(id=w_id, nom=nom, code=code, region=region))
         await db.flush()
 
-        # Filières avec UUID
+        # Filières
         filiere_ids = []
         for f in FILIERES_DATA:
             fid = uuid.uuid4()
@@ -100,7 +147,7 @@ async def seed_database():
             db.add(Filiere(id=fid, **f))
         await db.flush()
 
-        # Universités avec UUID
+        # Universités
         univ_ids = []
         for u in UNIVERSITES_DATA:
             uid = uuid.uuid4()
@@ -108,18 +155,11 @@ async def seed_database():
             db.add(Universite(id=uid, **u))
         await db.flush()
 
-        # Offres : chaque filière dans chaque université
+        # Offres
         nb_offres = 0
         for fid, moy_min in filiere_ids:
             for uid in univ_ids:
-                db.add(Offre(
-                    id=uuid.uuid4(),
-                    filiere_id=fid,
-                    universite_id=uid,
-                    annee=annee,
-                    capacite=50,
-                    moyenne_derniere=moy_min
-                ))
+                db.add(Offre(id=uuid.uuid4(), filiere_id=fid, universite_id=uid, annee=annee, capacite=50, moyenne_derniere=moy_min))
                 nb_offres += 1
 
         await db.commit()
