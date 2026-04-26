@@ -29,3 +29,19 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "ok", "version": settings.APP_VERSION}
+
+
+from db.session import engine
+from models import filiere, user, recommandation
+from sqlalchemy.ext.asyncio import AsyncSession
+from db.session import AsyncSessionLocal
+
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        from models.filiere import Base as FiliereBase
+        from models.user import Base as UserBase
+        from models.recommandation import Base as RecoBase
+        await conn.run_sync(FiliereBase.metadata.create_all)
+        await conn.run_sync(UserBase.metadata.create_all)
+        await conn.run_sync(RecoBase.metadata.create_all)
