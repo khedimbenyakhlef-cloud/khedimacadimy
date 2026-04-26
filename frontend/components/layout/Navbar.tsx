@@ -8,15 +8,11 @@ import { useAuthStore } from '@/lib/store'
 function LogoSVG({ size = 32 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Chapeau - bord */}
       <polygon points="50,20 95,45 50,55 5,45" fill="#15803d"/>
-      {/* Chapeau - dessus */}
       <rect x="44" y="10" width="12" height="22" rx="3" fill="#166534"/>
       <rect x="38" y="8" width="24" height="8" rx="4" fill="#166534"/>
-      {/* Cordon */}
       <rect x="70" y="45" width="4" height="24" rx="2" fill="#15803d"/>
       <circle cx="72" cy="70" r="6" fill="#f59e0b"/>
-      {/* Corps diplôme */}
       <path d="M25 48 Q25 78 50 82 Q75 78 75 48" fill="#166534"/>
     </svg>
   )
@@ -25,6 +21,7 @@ function LogoSVG({ size = 32 }: { size?: number }) {
 const liens = [
   { href: '/orientation', label: 'Orientation' },
   { href: '/filieres', label: 'Filières' },
+  { href: '/carte', label: '🗺️ Carte' },
 ]
 
 export default function Navbar() {
