@@ -7,7 +7,7 @@ import asyncio
 import httpx
 from bs4 import BeautifulSoup
 from typing import List, Dict
-from app.core.config import settings
+from core.config import settings
 
 
 class MESRSScraper:

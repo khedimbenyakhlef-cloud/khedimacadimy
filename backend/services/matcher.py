@@ -10,8 +10,8 @@ from dataclasses import dataclass
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.models.filiere import Filiere
-from app.models.recommandation import Offre, Universite
+from models.filiere import Filiere
+from models.recommandation import Offre, Universite
 
 
 @dataclass

@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
 from pydantic import BaseModel, Field
 from typing import List
-from app.db.session import get_db
-from app.services.matcher import MatcherService, ProfilEtudiant
+from db.session import get_db
+from services.matcher import MatcherService, ProfilEtudiant
 
 router = APIRouter(prefix="/orientation", tags=["orientation"])
 matcher = MatcherService()

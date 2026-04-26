@@ -4,8 +4,8 @@ Lancer avec : pytest tests/test_matcher.py -v
 """
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from app.services.matcher import MatcherService, ProfilEtudiant
-from app.models.filiere import Filiere
+from services.matcher import MatcherService, ProfilEtudiant
+from models.filiere import Filiere
 
 
 @pytest.fixture

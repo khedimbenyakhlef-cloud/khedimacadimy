@@ -2,12 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from typing import List, Optional
-from app.db.session import get_db
-from app.models.filiere import Filiere
-from app.models.recommandation import Temoignage, Offre, Universite
+from db.session import get_db
+from models.filiere import Filiere
+from models.recommandation import Temoignage, Offre, Universite
 from app.schemas.filiere import FiliereRead
-from app.core.security import get_current_user
-from app.models.user import Utilisateur
+from core.security import get_current_user
+from models.user import Utilisateur
 from pydantic import BaseModel, Field
 from uuid import UUID
 

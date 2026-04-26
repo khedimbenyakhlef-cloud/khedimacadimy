@@ -7,10 +7,10 @@ import sys
 sys.path.append(".")
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from app.core.config import settings
-from app.models.recommandation import Wilaya
-from app.models.filiere import Filiere
-from app.db.base import Base
+from core.config import settings
+from models.recommandation import Wilaya
+from models.filiere import Filiere
+from db.base import Base
 
 engine = create_async_engine(settings.DATABASE_URL, echo=True)
 AsyncSessionLocal = async_sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)

@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, SmallInteger, Boolean, ForeignKey, Intege
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
-from app.db.base import Base
+from db.base import Base
 
 
 class Utilisateur(Base):
