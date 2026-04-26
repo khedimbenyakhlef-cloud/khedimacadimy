@@ -130,8 +130,8 @@ async def seed_database():
         await db.execute(text("DELETE FROM filieres"))
         await db.execute(text("DELETE FROM universites"))
         await db.execute(text("DELETE FROM wilayas"))
-        await db.execute(text("DELETE FROM profils_bac"))
-        await db.execute(text("DELETE FROM utilisateurs"))
+        
+        
         await db.commit()
 
         # Wilayas
