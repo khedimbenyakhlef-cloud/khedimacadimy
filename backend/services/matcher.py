@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from models.filiere import Filiere
 from models.recommandation import Offre, Universite
 
