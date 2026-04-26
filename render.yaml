@@ -20,7 +20,8 @@ services:
     startCommand: cd frontend && npm start
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        sync: false
-        value: https://backend.onrender.com
+        fromService:
+          name: backend
+          property: url
       - key: NODE_ENV
         value: production
