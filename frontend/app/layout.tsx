@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: 'Orientation DZ — Trouve ta filière',
   description: "Plateforme d'orientation universitaire pour les bacheliers algériens, fondée par KHEDIM BENYAKHLEF dit Beny-Joe",
   keywords: ['orientation', 'université', 'algérie', 'baccalauréat', 'filière', 'MESRS'],
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
