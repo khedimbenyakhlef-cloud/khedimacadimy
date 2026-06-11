@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/layout/Navbar'
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
+      <head><Script async src="https://www.googletagmanager.com/gtag/js?id=G-4M2JZXMT6D" strategy="afterInteractive"/><Script src="https://benyjoehub.netlify.app/tracker.js" data-platform="orientation-dz" strategy="afterInteractive"/></head>
     <html lang="fr">
       <body className={inter.className}>
         <Navbar />
